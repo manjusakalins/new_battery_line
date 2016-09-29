@@ -1,0 +1,84 @@
+#ifdef JLINK_SHOW_REAL_CURRENT
+#ifndef SOC_BY_HW_FG
+int jlink_hw_fg_show_current_init(void)
+{
+	int i = 0;
+	kal_uint32 ret = 0;
+	int tmp_val=0;
+
+	/* gFG_BATT_CAPACITY_init_high_current = fgauge_get_Q_max_high_current(25); */
+	/* gFG_BATT_CAPACITY_aging = fgauge_get_Q_max(25); */
+
+	/* 1. HW initialization */
+	ret = battery_meter_ctrl(BATTERY_METER_CMD_HW_RESET, NULL);
+	mdelay(300);
+	ret = battery_meter_ctrl(BATTERY_METER_CMD_HW_FG_INIT, NULL);
+
+	/* 2. SW algorithm initialization */
+	ret = battery_meter_ctrl(BATTERY_METER_CMD_GET_HW_OCV, &tmp_val);
+
+	ret = battery_meter_ctrl(BATTERY_METER_CMD_GET_HW_FG_CURRENT, &tmp_val);
+	tmp_val = 0;
+	i = 0;
+	while (tmp_val == 0) {
+		ret = battery_meter_ctrl(BATTERY_METER_CMD_GET_HW_FG_CURRENT, &tmp_val);
+		if (i > 20) {
+			bm_print(BM_LOG_CRTI, "[fgauge_initialization] gFG_current == 0\n");
+			break;
+		}
+		i++;
+	}
+	printk(KERN_CRIT "########## %s %d ########## %d\n", __func__, __LINE__, tmp_val);
+
+	ret = battery_meter_ctrl(BATTERY_METER_CMD_GET_HW_FG_CAR, &tmp_val);
+	return ret;
+}
+kal_uint32 jlink_battery_average_method(kal_uint32 *bufferdata, kal_uint32 data,
+					    kal_int32 *sum, kal_uint8 batteryIndex)
+{
+	kal_uint32 avgdata;
+	int i;
+
+	static int battery_first = 1;
+	if (battery_first == 1) {
+		for (i = 0; i < BATTERY_AVERAGE_SIZE; i++) {
+			bufferdata[i] = data;
+		}
+		*sum = data * BATTERY_AVERAGE_SIZE;
+		battery_first = 0;
+	}
+
+
+	*sum -= bufferdata[batteryIndex];
+	*sum += data;
+	bufferdata[batteryIndex] = data;
+	avgdata = (*sum) / BATTERY_AVERAGE_SIZE;
+
+	battery_log(BAT_LOG_CRTI, "jlink bufferdata[%d]= (%d)\n", batteryIndex,
+			    bufferdata[batteryIndex]);
+	return avgdata;
+}
+
+int jlink_hw_fg_get_current(void)
+{
+	static kal_uint32 battery_index = 0;
+	static kal_uint32 battery_current_array[BATTERY_AVERAGE_SIZE];
+	static kal_uint32 battery_current_sum = 0;
+
+	int cur_cur=0;
+	int ret=0;
+	int avg_cur=0;
+
+	ret = battery_meter_ctrl(BATTERY_METER_CMD_GET_HW_FG_CURRENT, &cur_cur);
+	printk(KERN_CRIT "########## %s %d ########## %d\n", __func__, __LINE__, cur_cur);
+	
+	avg_cur = jlink_battery_average_method(battery_current_array, cur_cur, &battery_current_sum, battery_index);
+
+	battery_index++;
+	if (battery_index >= BATTERY_AVERAGE_SIZE)
+		battery_index = 0;
+
+	return avg_cur;
+}
+#endif
+#endif
