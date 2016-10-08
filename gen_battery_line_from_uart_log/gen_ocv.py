@@ -43,7 +43,8 @@ def get_target_val(line, split):
 record_start=0;
 top_rec=[];
 cur_rec={};
-sum_q=0;
+sum_q=0;#mean vbat 3.45v
+real_sum_q=0; #3.2v?
 stop_sumq=0;
 real_rec_num=0;
 for cur_line in lines:
@@ -57,7 +58,7 @@ for cur_line in lines:
         cur_rec["bvbat"] = int(get_target_val(cur_line, "bvbat:"));
         cur_rec["dis_q"] = cur_rec["time"]*cur_rec["cur"]/3600;
         if cur_rec["time"] > 13:
-            sum_q = sum_q + cur_rec["dis_q"];
+            real_sum_q = real_sum_q + cur_rec["dis_q"];
             real_rec_num = real_rec_num + 1;
 
         continue;
@@ -72,15 +73,16 @@ for cur_line in lines:
 
         record_start = 3;
         if stop_sumq != 1:
+            sum_q = sum_q + cur_rec["dis_q"];
             for vidx in range(len(cur_mvbat)):
                 if RepresentsInt(cur_mvbat[vidx]):
                     if int(cur_mvbat[vidx]) < 3450:
-                        print ":stop"
+                        print "!!!!!!!!!!!!!!!!!!!!!!!!! :stop"
                         stop_sumq=1;
                         sum_q = sum_q - cur_rec["dis_q"]*(len(cur_mvbat)-vidx)/len(cur_mvbat);
                         break;
                     
-
+    print sum_q;
     if record_start == 3:
         print cur_rec
         top_rec.append(cur_rec);
@@ -95,9 +97,10 @@ print real_rec_num;
 
 def jlink_print_ocv_file(max_q, g_print_h):
     global sum_q;
-    real_max_q = sum_q/10;
+    real_max_q = sum_q;#10mah
     #print top_rec
-    sum_q = top_rec[0]["cur"] * top_rec[0]["time"] / 36000;
+    #cur_sums_q = top_rec[0]["cur"] * top_rec[0]["time"] / 36000;
+    cur_sums_q = top_rec[0]["dis_q"]
 
 
     dtsi_start='''/ {
@@ -127,20 +130,22 @@ def jlink_print_ocv_file(max_q, g_print_h):
             #print top_rec[idx-1]["size"] - 1
 
             r = (top_rec[idx]["ocv"] - int(top_rec[idx-1]["vbats"][top_rec[idx-1]["size"] - 1]))*10000/top_rec[idx-1]["cur"]
-            dq = top_rec[idx]["cur"] * top_rec[idx]["time"] / 36000
-            #print top_rec[idx]["ocv"],int(top_rec[idx-1]["vbats"][top_rec[idx-1]["size"] - 1]), sum_q, r, (sum_q*1000/max_q + 5)/10
-            #print (sum_q*1000/max_q + 5)/10, (float(sum_q)*100/float(max_q)), top_rec[idx]["ocv"], top_rec[idx]["dis_q"]
+            dq = top_rec[idx]["dis_q"];
+            #dq = top_rec[idx]["cur"] * top_rec[idx]["time"] / 36000
+            #print top_rec[idx]["ocv"],int(top_rec[idx-1]["vbats"][top_rec[idx-1]["size"] - 1]), cur_sums_q, r, (cur_sums_q*1000/max_q + 5)/10
+            #print (cur_sums_q*1000/max_q + 5)/10, (float(cur_sums_q)*100/float(max_q)), top_rec[idx]["ocv"], top_rec[idx]["dis_q"]
 
             if g_print_h == 0:
-                out_ocv="%s%d %d\n" % (out_ocv, (sum_q*1000/real_max_q + 5)/10, top_rec[idx]["ocv"])
+                out_ocv="%s%d %d\n" % (out_ocv, (cur_sums_q*1000/real_max_q + 5)/10, top_rec[idx]["ocv"])
             else:
-                out_ocv="%s{%d, %d},\n" % (out_ocv, (sum_q*1000/real_max_q + 5)/10, top_rec[idx]["ocv"])
+                out_ocv="%s{%d, %d},\n" % (out_ocv, (cur_sums_q*1000/real_max_q + 5)/10, top_rec[idx]["ocv"])
 
             if g_print_h == 0:
                 out_r="%s%d %d\n" % (out_r, r, top_rec[idx]["ocv"])
             else:
                 out_r="%s{%d, %d},\n" % (out_r, r, top_rec[idx]["ocv"])
-            sum_q = sum_q + dq;
+            cur_sums_q = cur_sums_q + dq;
+            print cur_sums_q, real_max_q
         else:
             if g_print_h == 0:
                 out_ocv="%s100 3212\n" % out_ocv;
@@ -172,5 +177,5 @@ def jlink_print_ocv_file(max_q, g_print_h):
     genf.write(out_r);
     genf.close();
 
-jlink_print_ocv_file(3100, 0);
-jlink_print_ocv_file(3100, 1);
+jlink_print_ocv_file(4700, 0);
+jlink_print_ocv_file(4700, 1);
