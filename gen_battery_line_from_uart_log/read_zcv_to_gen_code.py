@@ -21,6 +21,7 @@ time_ocv_dataset=[];
 soc_r_dataset=[];
 
 soc_for_sprd=1;
+nums_for_mtk=77;
 #define for target
 
 
@@ -34,7 +35,7 @@ def load_xlsx_data(f_path, sheet_name, soc_col, vol_col, r_col, row_s, row_e, in
     print rb.get_sheet_names();
     
     for cur_sheet in rb.get_sheet_names():
-#        print cur_sheet
+        #print cur_sheet
         if cur_sheet == sheet_name:
             print rb[cur_sheet]
             rs = rb[cur_sheet]
@@ -104,28 +105,52 @@ def read_xls_to_gen_ocv_table_same_r(in_f, sheet_name, soc_col, vol_col, r_col, 
     curpath=sys.path[0]
     f_path=in_f
     print f_path
-    
+    input_dir=in_f[:in_f.rfind('/')]
+    print input_dir
+
     load_xlsx_data(f_path, sheet_name, soc_col, vol_col, r_col, row_s, row_e, in_r, dis_c)
 
     print time_ocv_dataset;
     print soc_r_dataset;
 #    scatterplotChart('xls_dis_curve.png', time_soc_dataset);
-    scatterplotChart('xls_dis_curve_same_r.png', time_ocv_dataset);
-    
+    scatterplotChart('read_zcv_soc_dis_curve.png', time_ocv_dataset);
+
+####################################   print soc ###################################
     cnt=0;
+    mtk_out=""
+    cur_cnt=0;
     for vals in time_ocv_dataset:
         if vals[0] >= cnt:
-            print "{%d, %d}," % (cnt, vals[1]+3300)#, vals[1]+3300-in_r*dis_c/1000)
+            mtk_out= "%s{%d, %d},\n" % (mtk_out, cnt, vals[1]+3300)#, vals[1]+3300-in_r*dis_c/1000)
             cnt=cnt+2;
+            cur_cnt=cur_cnt+1;
     #print "{%d, %d}," % (cnt, vals[1]+3300)
-    print "start r table"
-    #print r
-    cnt=0
+
+    print cur_cnt;
+    for i in range(cur_cnt, nums_for_mtk):
+        mtk_out= "%s{%d, %d},\n" % (mtk_out, 100, 3100)
+
+
+####################################   print r ###################################
+    mtk_out= "%sstart r table\n" % mtk_out
+
+    cnt=0;
+    cur_cnt=0;
     for idx in range(len(soc_r_dataset)):
         if soc_r_dataset[idx][0] >= cnt:
-            print "{%d, %d}," % (soc_r_dataset[idx][1], time_ocv_dataset[idx][1]+3300)#, vals[1]+3300-in_r*dis_c/1000)
+            mtk_out="%s{%d, %d},\n" % (mtk_out, soc_r_dataset[idx][1], time_ocv_dataset[idx][1]+3300)#, vals[1]+3300-in_r*dis_c/1000)
             cnt=cnt+2;
+            cur_cnt=cur_cnt+1;
 
+    for i in range(cur_cnt, nums_for_mtk):
+        mtk_out= "%s{%d, %d},\n" % (mtk_out, soc_r_dataset[len(soc_r_dataset)-2][1], 3100)
+
+    out_file=input_dir + "/read_ocv_out.h"
+    genf=open(out_file, 'w+');
+    genf.write(mtk_out);
+    genf.close();
+
+####################################   print for sprd ###################################
     if soc_for_sprd == 1:
         cnt=0
         outs=""
@@ -141,6 +166,7 @@ def read_xls_to_gen_ocv_table_same_r(in_f, sheet_name, soc_col, vol_col, r_col, 
                 cnt=cnt+2;
         print outs
         print len(time_ocv_dataset)
-read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/b960/battery/battery/zcv.xlsx", "Sheet3", 8, 3, 9, 3, 74, 75, 2000);
+#read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/b960/battery/battery/zcv.xlsx", "Sheet3", 8, 3, 9, 3, 74, 75, 2000);
 #read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/K960/battery/lingyun_3100/tt.xlsx", "Sheet1", 9, 6, 1597, 3226, 60, 1400);
 
+read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S960/battery/plr_d1_jjy/zcv.xlsx", "shee", 13, 9, 12, 2, 109, 60, 2000);
