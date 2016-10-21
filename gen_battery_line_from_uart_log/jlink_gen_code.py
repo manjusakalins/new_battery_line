@@ -68,15 +68,18 @@ def write_out_mtk_dtsi(o_path, g_customer, g_vendor, g_max_q, bat_data_sets):
 		q_max_pos_0_h_current = <%d >;
 		q_max_neg_10_h_current = <%d >;
 		num_table = <1 >;
-    ''' % (max_q,max_q,max_q,max_q,max_q,max_q,max_q,max_q)
+''' % (max_q,max_q,max_q,max_q,max_q,max_q,max_q,max_q)
 
 
-    out_ocv = "%sbattery_profile_t2_num = <%d>;\nbattery_profile_t2 = <0 %d\n" % (dtsi_start, len(bat_data_sets), bat_data_sets[0]["ocv"])
-    out_r = "r_profile_t2_num = <%d >;\nr_profile_t2 = <0 %d\n" % (len(bat_data_sets), bat_data_sets[0]["ocv"])
+    out_ocv = "%sbattery_profile_t2_num = <%d>;\nbattery_profile_t2 = <\n" % (dtsi_start, len(bat_data_sets))
+    out_r = "r_profile_t2_num = <%d >;\nr_profile_t2 = <\n" % (len(bat_data_sets))
 
     for idx in range(len(bat_data_sets)):
         out_ocv="%s%d %d\n" % (out_ocv, bat_data_sets[idx]["soc"], bat_data_sets[idx]["ocv"])
         out_r="%s%d %d\n" % (out_r, bat_data_sets[idx]["r"], bat_data_sets[idx]["ocv"])
+
+    out_ocv = "%s>;\n" % out_ocv
+    out_r = "%s>;\n};\n};" % out_r
 
     out_file=o_path + "/jlink_%s_%s_%dmah.dtsi" % (g_customer, g_vendor, g_max_q)
     genf=open(out_file, 'w+');

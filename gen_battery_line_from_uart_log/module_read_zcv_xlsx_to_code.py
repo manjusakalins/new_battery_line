@@ -49,6 +49,7 @@ def load_xlsx_data(f_path, sheet_name, soc_col, vol_col, r_col, row_s, row_e, in
                 ###### FIXME: maybe we need change cell data value here with differce xlsx #####
                 tmp_ocv = int(vol);
                 tmp_r = int(ocvr);
+                tmp_soc = int(soc + 0.5)
                 ################################################################################
 
                 if tmp_ocv > 3300:
@@ -60,8 +61,9 @@ def load_xlsx_data(f_path, sheet_name, soc_col, vol_col, r_col, row_s, row_e, in
                     tmp_dict={}
                     tmp_dict["ocv"] = tmp_ocv
                     tmp_dict["r"] = tmp_r
-                    tmp_dict["soc"] = soc
-                    out_data_set.append(tmp_dict);
+                    tmp_dict["soc"] = tmp_soc
+                    if tmp_soc % 2 == 0:
+                        out_data_set.append(tmp_dict);
                     
     return out_data_set;
 # gen png
@@ -121,3 +123,6 @@ def read_xls_to_gen_ocv_table_same_r(in_f, sheet_name, soc_col, vol_col, r_col, 
     
 
 read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S525/battery/bk.xlsx", "ZCV", 6, 2, 7, 2, 105, 60, 2000);
+#read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S525/battery/bk.xlsx", "ZCV", 14, 10, 15, 2, 105, 60, 2000);
+#read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S525/battery/bk.xlsx", "ZCV", 22, 18, 23, 2, 105, 60, 2000);
+
