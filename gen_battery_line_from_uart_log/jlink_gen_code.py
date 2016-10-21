@@ -34,8 +34,8 @@ def write_out_mtk_header(o_path, g_customer, g_vendor, g_max_q, bat_data_sets):
     print o_path, g_customer, g_vendor, g_max_q
     #print bat_data_sets;
 
-    out_ocv="//start define\nBATTERY_PROFILE_STRUC lk_py_%s_%s_ocv_%dmah[] =\n{\n\t{0, %d},\n" % (g_customer, g_vendor, g_max_q,bat_data_sets[0]["ocv"]);
-    out_r="R_PROFILE_STRUC lk_py_%s_%s_r_%dmah[] =\n{\n\t{%d, %d},\n" % (g_customer, g_vendor, g_max_q, bat_data_sets[0]["r"], bat_data_sets[0]["ocv"]);
+    out_ocv="//start define\nBATTERY_PROFILE_STRUC lk_py_%s_%s_ocv_%dmah[] =\n{\n" % (g_customer, g_vendor, g_max_q);
+    out_r="R_PROFILE_STRUC lk_py_%s_%s_r_%dmah[] =\n{\n" % (g_customer, g_vendor, g_max_q);
     for idx in range(len(bat_data_sets)):
         out_ocv="%s\t{%d, %d},\n" % (out_ocv, bat_data_sets[idx]["soc"], bat_data_sets[idx]["ocv"])
         out_r="%s\t{%d, %d},\n" % (out_r, bat_data_sets[idx]["r"], bat_data_sets[idx]["ocv"])
@@ -107,13 +107,17 @@ def write_out_sprd_dtsi(o_path, g_customer, g_vendor, g_max_q, bat_data_sets):
     out_r_ocv = "\t\trint-tab-ocv = <%d " % (bat_data_sets[0]["ocv"])
     out_r_rint = "\t\trint-tab-rint = <0 ";
 
+    nums=1;
     for idx in range(1, len(bat_data_sets)):
+        if bat_data_sets[idx]["soc"] > 101:
+            break;
         out_ocv="%s%d " % (out_ocv, bat_data_sets[idx]["ocv"])
         out_cap="%s%d " % (out_cap, 100-bat_data_sets[idx]["soc"])
         out_r_ocv="%s%d " % (out_r_ocv, bat_data_sets[idx]["ocv"])
         out_r_rint="%s%d " % (out_r_rint, bat_data_sets[idx]["r"])
+        nums = nums+1;
 
-    out_head = "%s\t\tocv-tab-size = <%d>;\n\t\trint-tab-size = <%d>;\n" % (dtsi_start, len(bat_data_sets), len(bat_data_sets))
+    out_head = "%s\t\tocv-tab-size = <%d>;\n\t\trint-tab-size = <%d>;\n" % (dtsi_start, nums, nums)
     out_ocv = "%s>;\n" % out_ocv
     out_cap = "%s>;\n" % out_cap        
     out_r_ocv = "%s>;\n" % out_r_ocv
