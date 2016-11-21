@@ -67,7 +67,9 @@ for cur_line in lines:
         cur_rec["time"] = int(get_target_val(cur_line, "t:"));
         cur_rec["size"] = int(get_target_val(cur_line, "size:"));
         cur_rec["bvbat"] = int(get_target_val(cur_line, "bvbat:"));
-        cur_rec["dis_q"] = cur_rec["time"]*cur_rec["cur"]/3600;
+        cur_rec["hw_dis_q"] = int(get_target_val(cur_line, "fgu_dis:"));
+        cur_rec["dis_q"] = int(get_target_val(cur_line, "fgu_dis:"));
+        #cur_rec["dis_q"] = cur_rec["time"]*cur_rec["cur"]/3600;
         if cur_rec["time"] > 13:
             real_sum_q = real_sum_q + cur_rec["dis_q"];
             real_rec_num = real_rec_num + 1;
@@ -87,7 +89,7 @@ for cur_line in lines:
             sum_q = sum_q + cur_rec["dis_q"];
             for vidx in range(len(cur_mvbat)):
                 if RepresentsInt(cur_mvbat[vidx]):
-                    if int(cur_mvbat[vidx]) < 3450:
+                    if int(cur_mvbat[vidx]) < 3340:
                         print "!!!!!!!!!!!!!!!!!!!!!!!!! :stop"
                         stop_sumq=1;
                         sum_q = sum_q - cur_rec["dis_q"]*(len(cur_mvbat)-vidx)/len(cur_mvbat);

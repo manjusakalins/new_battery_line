@@ -32,10 +32,10 @@ inputlog=sys.argv[1];
 
 
 # for sprd
-cmd = '''cat %s | grep ,cap: | awk -F '.' '{print $1}' | awk -F '[' '{print $2}' | tee pylog_time ''' % inputlog
+cmd = '''cat -A %s | grep ,cap: | awk -F '.' '{print $1}' | awk -F '[' '{print $2}' | tee pylog_time ''' % inputlog
 list_time = os.popen(cmd).readlines()
 
-cmd = '''cat %s | grep ,cap: | awk -F ',cap:' '{print $2}' | awk -F ',' '{print $1}' | tee pylog_soc ''' % inputlog
+cmd = '''cat -A %s | grep ,cap: | awk -F ',cap:' '{print $2}' | awk -F ',' '{print $1}' | tee pylog_soc ''' % inputlog
 #using d2
 #cmd = '''cat %s | grep oam_result_inf | awk -F ',' '{print $2}' ''' % inputlog
 list_soc=os.popen(cmd).readlines()
@@ -77,7 +77,7 @@ book.save("gen_xls.xls")
 
 #======================================================
 def RepresentsInt(s):
-    try: 
+    try:
         int(s)
         return True
     except ValueError:

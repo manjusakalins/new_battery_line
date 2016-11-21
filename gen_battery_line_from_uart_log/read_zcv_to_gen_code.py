@@ -172,4 +172,5 @@ def read_xls_to_gen_ocv_table_same_r(in_f, sheet_name, soc_col, vol_col, r_col, 
 #read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/K960/battery/lingyun_3100/tt.xlsx", "Sheet1", 9, 6, 1597, 3226, 60, 1400);
 
 #read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S960/battery/plr_d1_jjy/zcv.xlsx", "shee", 13, 9, 12, 2, 109, 60, 2000);
-read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S525/battery/bk.xlsx", "ZCV", 6, 2, 7, 2, 103, 60, 2000);
+#read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S525/battery/bk.xlsx", "ZCV", 6, 2, 7, 2, 103, 60, 2000);
+read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S505/BAT/TCL/zzcv.xlsx", "ZCV", 6, 2, 7, 3, 103, 66, 2000);

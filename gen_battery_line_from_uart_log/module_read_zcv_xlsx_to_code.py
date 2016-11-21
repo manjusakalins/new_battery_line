@@ -29,7 +29,7 @@ out_tuple_num = 100;
 last_ocv = 3500;#to vbat is 3400.
 target_base_time = 0;
 
-def load_xlsx_data(f_path, sheet_name, soc_col, vol_col, r_col, row_s, row_e, in_r, dis_c):
+def load_xlsx_data(f_path, sheet_name, soc_col, vol_col, r_col, row_s, row_e):
     out_data_set=[];
     rb = load_workbook(f_path,data_only=True);
     print rb.get_sheet_names();
@@ -62,8 +62,8 @@ def load_xlsx_data(f_path, sheet_name, soc_col, vol_col, r_col, row_s, row_e, in
                     tmp_dict["ocv"] = tmp_ocv
                     tmp_dict["r"] = tmp_r
                     tmp_dict["soc"] = tmp_soc
-                    if tmp_soc % 2 == 0:
-                        out_data_set.append(tmp_dict);
+                    #if tmp_soc % 2 == 0:
+                    out_data_set.append(tmp_dict);
                     
     return out_data_set;
 # gen png
@@ -103,26 +103,42 @@ def scatterplotChart(output, in_dataset):
     surface.write_to_png(output)
 
 
-def read_xls_to_gen_ocv_table_same_r(in_f, sheet_name, soc_col, vol_col, r_col, row_s, row_e, in_r, dis_c):
+def read_xls_to_gen_ocv_table_same_r(in_f, sheet_name, soc_col, vol_col, r_col, row_s, row_e, customer, vendor, max_qq):
 
     curpath=sys.path[0]
     f_path=in_f
     input_dir=in_f[:in_f.rfind('/')]
     print input_dir
-    load_xlsx_data(f_path, sheet_name, soc_col, vol_col, r_col, row_s, row_e, in_r, dis_c)
+    load_xlsx_data(f_path, sheet_name, soc_col, vol_col, r_col, row_s, row_e)
 
     #print time_ocv_dataset;
     #print soc_r_dataset;
     scatterplotChart('read_zcv_soc_dis_curve.png', time_ocv_dataset);
 
-    sets=load_xlsx_data(f_path, sheet_name, soc_col, vol_col, r_col, row_s, row_e, in_r, dis_c)
+    sets=load_xlsx_data(f_path, sheet_name, soc_col, vol_col, r_col, row_s, row_e)
     print sets
-    jlinkgc.write_out_mtk_header(input_dir,"ydsm", "tcl", 2100, sets)
-    jlinkgc.write_out_mtk_dtsi(input_dir,"ydsm", "tcl", 2100, sets)
-    jlinkgc.write_out_sprd_dtsi(input_dir,"ydsm", "tcl", 2100, sets)
+    jlinkgc.write_out_mtk_header(input_dir,customer, vendor, max_qq, sets)
+    jlinkgc.write_out_mtk_dtsi(input_dir,customer, vendor, max_qq, sets)
+    jlinkgc.write_out_sprd_dtsi(input_dir, customer, vendor, max_qq, sets)
     
 
-read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S525/battery/bk.xlsx", "ZCV", 6, 2, 7, 2, 105, 60, 2000);
+#read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S525/battery/bk.xlsx", "ZCV", 6, 2, 7, 2, 105, 60, 2000);
 #read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S525/battery/bk.xlsx", "ZCV", 14, 10, 15, 2, 105, 60, 2000);
 #read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S525/battery/bk.xlsx", "ZCV", 22, 18, 23, 2, 105, 60, 2000);
 
+
+
+#read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S505/BAT/TCL/zzcv.xlsx", "ZCV", 6, 2, 7, 3, 103, 66, 2000);
+i = 8;
+#read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S505/BAT/TCL/zzcv.xlsx", "ZCV", 6+i, 2+i, 7+i, 3, 103, 66, 2000);
+i = i+8;
+#read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S505/BAT/TCL/zzcv.xlsx", "ZCV", 6+i, 2+i, 7+i, 3, 103, 66, 2000);
+i = i+8;
+#read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/S505/BAT/TCL/zzcv.xlsx", "ZCV", 6+i, 2+i, 7+i, 3, 103, 66, 2000);
+
+#k801
+#/home/manjusaka/work_data/K801/battery/k802
+read_xls_to_gen_ocv_table_same_r("/home/manjusaka/work_data/K801/battery/k802/zcv.xlsx",
+    "ZCV", 6, 2, 5,
+    2, 87,
+    "k802", "msd", 4700);

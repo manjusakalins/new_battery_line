@@ -88,7 +88,7 @@ for cur_line in lines:
             sum_q = sum_q + cur_rec["dis_q"];
             for vidx in range(len(cur_mvbat)):
                 if RepresentsInt(cur_mvbat[vidx]):
-                    if int(cur_mvbat[vidx]) < 3450:
+                    if int(cur_mvbat[vidx]) < 3400:
                         print "!!!!!!!!!!!!!!!!!!!!!!!!! :stop"
                         stop_sumq=1;
                         sum_q = sum_q - cur_rec["dis_q"]*(len(cur_mvbat)-vidx)/len(cur_mvbat);
